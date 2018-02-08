@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 const blogContoller = require("../controllers/blogController.js")
 
-router.get('/:id', blogContoller.getById);
+
+
+router.get('/:id',  blogContoller.getById);
 
 router.get('/', blogContoller.getAll);
 

@@ -1,23 +1,11 @@
-const express = require('express');
-const router = express.Router();
-const auth = require("../controllers/AuthController.js");
+const blogs = require('./blogs');
+const auth = require('./auth');
+const isLoggedIn = require('../server.js');
+const ensureLoggedIn = require('../utils/index.js');
 
-// restrict index for logged in user only
-router.get('/', auth.home);
+module.exports = function(app) {
 
-// route to register page
-router.get('/register', auth.register);
+  app.use('/', auth);
+  app.use('/blogs',ensureLoggedIn(), blogs);
 
-// route for register action
-router.post('/register', auth.doRegister);
-
-// route to login page
-router.get('/login', auth.login);
-
-// route for login action
-router.post('/login', auth.doLogin);
-
-// route for logout action
-router.get('/logout', auth.logout);
-
-module.exports = router;
+}

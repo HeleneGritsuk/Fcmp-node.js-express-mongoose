@@ -24,7 +24,7 @@ html
                 a(href='/register') Register
             if (user)
               li
-                a Welcome #{user.name}
+                a Welcome #{user.name} #{user.username}
               li
                 a(href='/logout') Logout
 

@@ -29,7 +29,7 @@ userController.doRegister = function(req, res) {
 
 // Go to login page
 userController.login = function(req, res) {
-  res.render('login');
+  return res.render('login');
 };
 
 // Post login

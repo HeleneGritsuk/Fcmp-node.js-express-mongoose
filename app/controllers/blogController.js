@@ -1,37 +1,30 @@
 const dbModel = require("../models/Blog");
-var ObjectID = require('mongodb').ObjectID;
+const ObjectID = require('mongodb').ObjectID;
+const mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
 
-exports.getById = (req, res) => {
+exports.getById = (req, res, next) => {
   const id = req.params.id;
   const details = {
     '_id': new ObjectID(id)
   };
-  dbModel.findById(details, (err, item) => {
-    if (err) {
-      res.send({
-        'error': 'An error has occurred'
-      });
-    }
-    if (item) {
-      res.status(200).send(item);
-    }
-    else {
-      res.status(404).send("No blog found with that ID")
-    }
-  });
+  dbModel.findById(details)
+    .then(blog => {
+      if(!blog) {
+        next({message: "No blog found with that ID"});
+      }
+      res.status(200).send(blog);
+    })
+    .catch(next);
 }
-exports.getAll = (req, res) => {
-  dbModel.find((err, item) => {
-    if (err) {
-      res.send({
-        'error': 'An error has occurred'
-      });
-    } else {
-      res.send(item);
-    }
-  });
+exports.getAll = (req, res, next) => {
+  dbModel.find()
+  .then(blogs => {
+    res.send(blogs);
+  })
+  .catch(next);
 }
-exports.postBlog =(req, res) => {
+exports.postBlog = (req, res) => {
   const postObj = {
     text: req.body.body,
     title: req.body.title
@@ -39,33 +32,24 @@ exports.postBlog =(req, res) => {
 
   let post = new dbModel(postObj);
   post.save((err, createdTodoObject) => {
-  if (err) {
-      res.status(500).send(err);
-  }
-
   res.status(200).send(createdTodoObject);
   });
 }
-exports.deleteBlog = (req, res) => {
+exports.deleteBlog = (req, res, next) => {
   const id = req.params.id;
   const objId = {
     '_id': new ObjectID(id)
   };
-  dbModel.findByIdAndRemove(objId, (err, item) => {
-    if (err) {
-      res.send({
-        'error': 'An error has occurred'
-      });
-    }
-    if(item) {
-      res.status(200).send('Blog ' + id + ' deleted!');
-    }
-    else {
-      res.status(404).send('Blog ' + id + ' not found!');
-    }
-  });
+  dbModel.findByIdAndRemove(objId)
+    .then(blog => {
+      if(!blog) {
+        next({message: "No blog found with that ID"});
+      }
+      res.status(200).send('Blog ' + id + ' deleted!')
+    })
+    .catch(next);
 }
-exports.updateBlog = (req, res) => {
+exports.updateBlog = (req, res, next) => {
   const id = req.params.id;
   const objId = {
     '_id': new ObjectID(id)
@@ -74,14 +58,12 @@ exports.updateBlog = (req, res) => {
     text: req.body.body,
     title: req.body.title
   };
-  dbModel.findById(objId, (err, blog) => {
-    if (err) {
-      res.send({
-        'error': 'An error has occurred'
-      });
+  dbModel.findById(objId)
+  .then(blog => {
+    if(!blog) {
+      next({message: "No blog found with that ID"});
     }
     else {
-
       blog.text = req.body.body || blog.text;
       blog.title = req.body.title || blog.title;
       blog.save((err, todo) => {
@@ -91,5 +73,6 @@ exports.updateBlog = (req, res) => {
           res.status(200).send(todo);
       });
     }
-  });
+  })
+  .catch(next);
 }
