@@ -60,19 +60,19 @@ exports.updateBlog = (req, res, next) => {
   };
   dbModel.findById(objId)
   .then(blog => {
+
     if(!blog) {
       next({message: "No blog found with that ID"});
     }
     else {
       blog.text = req.body.body || blog.text;
       blog.title = req.body.title || blog.title;
-      blog.save((err, todo) => {
-          if (err) {
-              res.status(500).send(err)
-          }
-          res.status(200).send(todo);
-      });
-    }
-  })
+      blog.save()
+          .then(todo => {
+            res.status(200).send(todo);
+          })
+          .catch(next);
+      }
+    })
   .catch(next);
 }
